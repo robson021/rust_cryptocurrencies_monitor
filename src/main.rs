@@ -1,3 +1,4 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
@@ -14,7 +15,7 @@ struct CurrencyModel {
     name: String,
     symbol: String,
     rank: String,
-    price_usd: String, //todo: use decimal type
+    price_usd: Decimal,
 }
 
 fn http_get(api_url: &str) -> Result<String, Box<dyn Error>> {
@@ -26,10 +27,8 @@ fn http_get(api_url: &str) -> Result<String, Box<dyn Error>> {
 
 fn main() {
     let api_url = "https://api.coincap.io/v2/assets/";
-    let binding = http_get(api_url).unwrap();
-    let json = binding.as_str();
+    let json = http_get(api_url).unwrap();
 
-    let parsed_currencies = serde_json::from_str::<CurrencyModelList>(json).unwrap();
-
-    println!("Parsed result:\n{:#?}", parsed_currencies);
+    let currencies = serde_json::from_str::<CurrencyModelList>(json.as_ref()).unwrap();
+    println!("Parsed result:\n{:#?}", currencies);
 }
