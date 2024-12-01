@@ -7,6 +7,6 @@ pub fn get(api_url: &str) -> Result<String, Box<dyn Error>> {
         .map_err(|e| error!("Failed to get from: {}", e))
         .unwrap()
         .text()?;
-    debug!("Received response:\n{}", resp);
+    debug!("Received response: {:#?}", resp);
     Ok(resp)
 }
