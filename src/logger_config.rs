@@ -3,7 +3,7 @@ use log4rs::append::console::ConsoleAppender;
 use log4rs::append::console::Target;
 use log4rs::config::{Appender, Config, Root};
 
-pub fn init_logger() {
+pub fn setup_logger() {
     let stderr = ConsoleAppender::builder().target(Target::Stderr).build();
 
     let error_trace_level = Root::builder().appender("stderr").build(LevelFilter::Trace);

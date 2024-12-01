@@ -1,9 +1,9 @@
+mod http_api;
 mod logger_config;
 
-use log::{debug, info};
+use log::info;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct CurrencyModelList {
@@ -19,13 +19,6 @@ struct CurrencyModel {
     symbol: String,
     rank: String,
     price_usd: Decimal,
-}
-
-fn http_get(api_url: &str) -> Result<String, Box<dyn Error>> {
-    info!("GET {}", api_url);
-    let resp = reqwest::blocking::get(api_url)?.text()?;
-    debug!("Received response:\n{}", resp);
-    Ok(resp)
 }
 
 fn get_top_10(currencies: &Vec<CurrencyModel>) -> Vec<String> {
@@ -47,16 +40,17 @@ fn get_top_10(currencies: &Vec<CurrencyModel>) -> Vec<String> {
 }
 
 fn main() {
-    logger_config::init_logger();
+    logger_config::setup_logger();
 
     let api_url = "https://api.coincap.io/v2/assets/";
-    let json = http_get(api_url).unwrap();
+    let json = http_api::get(api_url).unwrap();
 
     let all_currencies = serde_json::from_str::<CurrencyModelList>(json.as_ref())
         .unwrap()
         .data;
 
     let top_10_currencies = get_top_10(&all_currencies);
+
     info!("All currencies: {:#?}", all_currencies);
     info!("Top 10 currencies: {:#?}", top_10_currencies);
 }
