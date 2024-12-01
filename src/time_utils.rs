@@ -2,7 +2,7 @@ use chrono::{DateTime, Local};
 use rust_decimal::prelude::ToPrimitive;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-static DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
+const DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
 pub fn get_formatted_local_time(timestamp_millis: u64) -> String {
     let timestamp = timestamp_millis.to_u64().unwrap();

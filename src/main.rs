@@ -57,5 +57,5 @@ fn main() {
 
     info!("All currencies: {:#?}", all_currencies);
     info!("Top 10 currencies: {:#?}", top_10_currencies);
-    info!("API fetch time was {:#?}", timestamp_str);
+    info!("Rates fetched at: {:#?}", timestamp_str);
 }
