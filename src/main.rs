@@ -2,7 +2,7 @@ mod http_api;
 mod logger_config;
 mod time_utils;
 
-use log::info;
+use log::{error, info};
 use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -23,11 +23,17 @@ struct CurrencyModel {
     price_usd: Decimal,
 }
 
+#[inline(always)]
+fn parse_int(s: &String) -> i32 {
+    s.parse::<i32>()
+        .unwrap_or_else(|_| panic!("'{}' is not a number", s))
+}
+
 fn get_top_10(currencies: &Vec<CurrencyModel>) -> Vec<String> {
     let mut currencies = currencies.to_owned();
     currencies.sort_by(|a, b| {
-        let a_rank = a.rank.parse::<i32>().unwrap();
-        let b_rank = b.rank.parse::<i32>().unwrap();
+        let a_rank = parse_int(&a.rank);
+        let b_rank = parse_int(&b.rank);
         a_rank.cmp(&b_rank)
     });
     currencies
@@ -45,12 +51,15 @@ fn main() {
     logger_config::setup_logger();
 
     let api_url = "https://api.coincap.io/v2/assets/";
-    let json = http_api::get(api_url).unwrap();
+    let json = http_api::get(api_url).expect("API error. Failed to fetch data from CoinCap.io");
 
     let parsed: CurrencyModelList =
-        serde_json::from_str::<CurrencyModelList>(json.as_ref()).unwrap();
-    let timestamp = parsed.timestamp.to_u64().unwrap();
+        serde_json::from_str::<CurrencyModelList>(json.as_ref()).expect("JSON parsing error");
 
+    let timestamp = parsed.timestamp.to_u64().unwrap_or_else(|| {
+        error!("Invalid timestamp {}", parsed.timestamp);
+        0
+    });
     let timestamp_str = time_utils::get_formatted_local_time(timestamp);
     let all_currencies = parsed.data;
     let top_10_currencies = get_top_10(&all_currencies);
